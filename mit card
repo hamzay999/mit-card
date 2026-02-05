@@ -1,0 +1,781 @@
+uid://dgbbob40g4am2
+
+extends BaseCard
+
+func _init():
+	card_id = "berry"
+	card_type = "food"
+	work_duration = 0.0 # التوت لا يُنتج شيئاً عند العمل عليه حالياً
+
+func _ready():
+	super._ready()
+	# التوت يمكن أكله من قبل القروي في نهاية اليوم (ميزة سنضيفها لاحقاً)
+	pass
+
+uid://bqvaesm5p1keq
+
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://bv5o02sg71fad"
+path="res://.godot/imported/berry.png-124ee34a112649a044627e737da1aeed.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://berry.png"
+dest_files=["res://.godot/imported/berry.png-124ee34a112649a044627e737da1aeed.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1
+
+[gd_scene load_steps=4 format=3 uid="uid://bqx38aysi7bnn"]
+
+[ext_resource type="Script" path="res://berry.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bv5o02sg71fad" path="res://berry.png" id="1_i041f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(80, 100)
+
+[node name="Berry" type="Area2D"]
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = ExtResource("1_i041f")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+
+extends BaseCard
+
+# تحميل مشهد التوتة
+const BERRY_SCENE = preload("res://berry.tscn")
+
+func _init():
+	card_id = "bush"
+	card_type = "resource"
+	work_duration = 3.0 # الشجيرة تأخذ 3 ثواني لإنتاج التوت
+
+func spawn_result():
+	if BERRY_SCENE:
+		var berry = BERRY_SCENE.instantiate()
+		get_parent().add_child(berry)
+		
+		# وضع التوتة بجانب الشجيرة مع تأثير بسيط
+		var offset = Vector2(randf_range(80, 120), randf_range(-20, 20))
+		berry.global_position = global_position + offset
+		
+		# تأثير ظهور ناعم
+		berry.scale = Vector2.ZERO
+		var tween = create_tween()
+		tween.tween_property(berry, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK)
+		
+		print("Spawned a berry!")
+
+uid://djtylqs632u1d
+
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://doy24u7bwwjft"
+path="res://.godot/imported/bush.png-2e26c4033a962045fd33552ab7e2846f.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://bush.png"
+dest_files=["res://.godot/imported/bush.png-2e26c4033a962045fd33552ab7e2846f.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1
+
+[gd_scene load_steps=4 format=3 uid="uid://wjwd28ydrrv4"]
+
+[ext_resource type="Script" path="res://bush.gd" id="1_28u5p"]
+[ext_resource type="Texture2D" uid="uid://doy24u7bwwjft" path="res://bush.png" id="2_ilexf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8cy4n"]
+size = Vector2(40, 40)
+
+[node name="Bush" type="Area2D"]
+script = ExtResource("1_28u5p")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = ExtResource("2_ilexf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_8cy4n")
+scale = Vector2(2, 2)
+
+extends CanvasLayer
+
+@onready var label = Label.new()
+
+func _ready():
+	add_child(label)
+	label.position = Vector2(20, 20)
+	# إعدادات الخط واللون
+	label.add_theme_color_override("font_color", Color.WHITE)
+	label.scale = Vector2(1.5, 1.5)
+
+func _process(_delta):
+	var time_left = 60.0 - GameState.day_timer
+	label.text = "Day: %d\nTime Left: %d s" % [GameState.current_day, int(time_left)]
+
+uid://dfxlkbwnq57qs
+
+extends Node
+
+# 🌍 إدارة حالة اللعبة العامة
+var current_day: int = 1
+var day_duration: float = 60.0 # اليوم مدته دقيقة
+var day_timer: float = 0.0
+
+var food_count: int = 0
+var villager_count: int = 0
+
+signal day_ended
+signal food_changed(new_amount)
+
+func _process(delta):
+	day_timer += delta
+	if day_timer >= day_duration:
+		end_day()
+
+func end_day():
+	day_timer = 0.0
+	current_day += 1
+	emit_signal("day_ended")
+	print("Day ", current_day, " started!")
+	
+	# منطق إطعام القرويين
+	check_feeding()
+
+func check_feeding():
+	# البحث عن جميع القرويين في المشهد
+	var villagers = get_tree().get_nodes_in_group("cards").filter(func(c): return c.card_type == "villager")
+	villager_count = villagers.size()
+	
+	# البحث عن كل الطعام
+	var food_cards = get_tree().get_nodes_in_group("cards").filter(func(c): return c.card_type == "food")
+	food_count = food_cards.size()
+	
+	print("End of day! Villagers: ", villager_count, " Food: ", food_count)
+	
+	if food_count < villager_count:
+		print("Warning: Not enough food! Villagers might starve.")
+		# هنا يمكنك إضافة منطق لموت القروي أو نقص صحته
+	else:
+		# استهلاك الطعام
+		for i in range(villager_count):
+			var food = food_cards[i]
+			food.queue_free() # حذف بطاقة الطعام المستهلكة
+		print("All villagers fed.")
+
+uid://te38nytkgayu
+
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://c2lpihtln132d"
+path="res://.godot/imported/grass.png-79cf597cc1adecdff9d12adae9606f9b.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://grass.png"
+dest_files=["res://.godot/imported/grass.png-79cf597cc1adecdff9d12adae9606f9b.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1
+
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="124" height="124" x="2" y="2" fill="#363d52" stroke="#212532" stroke-width="4" rx="14"/><g fill="#fff" transform="translate(12.322 12.322)scale(.101)"><path d="M105 673v33q407 354 814 0v-33z"/><path fill="#478cbf" d="m105 673 152 14q12 1 15 14l4 67 132 10 8-61q2-11 15-15h162q13 4 15 15l8 61 132-10 4-67q3-13 15-14l152-14V427q30-39 56-81-35-59-83-108-43 20-82 47-40-37-88-64 7-51 8-102-59-28-123-42-26 43-46 89-49-7-98 0-20-46-46-89-64 14-123 42 1 51 8 102-48 27-88 64-39-27-82-47-48 49-83 108 26 42 56 81zm0 33v39c0 276 813 276 814 0v-39l-134 12-5 69q-2 10-14 13l-162 11q-12 0-16-11l-10-65H446l-10 65q-4 11-16 11l-162-11q-12-3-14-13l-5-69z"/><path d="M483 600c0 34 58 34 58 0v-86c0-34-58-34-58 0z"/><circle cx="725" cy="526" r="90"/><circle cx="299" cy="526" r="90"/></g><g fill="#414042" transform="translate(12.322 12.322)scale(.101)"><circle cx="307" cy="532" r="60"/><circle cx="717" cy="532" r="60"/></g></svg>
+
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://01ewaq0oesab"
+path="res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://icon.svg"
+dest_files=["res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false
+
+extends BaseCard
+
+func _init():
+	card_id = "villager"
+	card_type = "villager"
+	# القروي لا يحتاج وقت عمل لنفسه، بل يعمل على الموارد
+	work_duration = 0.0 
+
+func _ready():
+	super._ready()
+	# يمكنك إضافة ميزات خاصة بالقروي هنا، مثل الجوع مستقبلاً
+	pass
+
+uid://bjuvxui1n7qxb
+
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://c6bdhuuhlat2i"
+path="res://.godot/imported/man.png-092256092d9d6123ce93678bdf1d415b.ctex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://man.png"
+dest_files=["res://.godot/imported/man.png-092256092d9d6123ce93678bdf1d415b.ctex"]
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1
+
+[gd_scene load_steps=4 format=3 uid="uid://cw25yg64evgn6"]
+
+[ext_resource type="Script" path="res://man.gd" id="1_pfr4v"]
+[ext_resource type="Texture2D" uid="uid://c6bdhuuhlat2i" path="res://man.png" id="2_rb5kw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rb5kw"]
+size = Vector2(40, 50)
+
+[node name="Man" type="Area2D"]
+script = ExtResource("1_pfr4v")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = ExtResource("2_rb5kw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_rb5kw")
+scale = Vector2(2, 2)
+
+extends Node2D
+class_name DraggableCard
+
+# ⚙️ الإعدادات
+@export var card_name: String = "Card"
+var nearby_bush = null
+@export var snap_to_grid: bool = true
+@export var grid_size: int = 128
+@export var return_to_original: bool = false
+@export var card_size: Vector2 = Vector2(80, 100)  # حجم الكارت
+
+# 🎯 متغيرات السحب
+var is_dragging: bool = false
+var drag_offset: Vector2 = Vector2.ZERO
+var original_position: Vector2 = Vector2.ZERO
+var original_z_index: int = 0
+var is_mouse_hovering: bool = false
+
+func _ready():
+	# ✅ حفظ الموضع الأصلي
+	original_position = global_position
+	original_z_index = z_index
+
+func _process(delta: float):
+		# البحث عن شجيرات قريبة
+	var bushes = get_tree().get_nodes_in_group("bushes")
+	
+	for bush in bushes:
+		var distance = global_position.distance_to(bush.global_position)
+		if distance < 100:  # إذا كان قريباً
+			bush.set_player(self)  # تمرير المرجع
+			nearby_bush = bush
+			break
+		else:
+			nearby_bush = null
+	
+	# ✅ تحديث الموضع أثناء السحب
+	if is_dragging:
+		global_position = get_global_mouse_position() + drag_offset
+	
+	# ✅ التحقق من تمرير الفأرة (بدون إشارات)
+	check_mouse_hover()
+
+func _input(event: InputEvent):
+	# ✅ بدء السحب عند النقر
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				# التحقق إذا كان النقر فوق الكارت
+				if is_point_inside_card(get_global_mouse_position()):
+					start_dragging()
+			elif not event.pressed and is_dragging:
+				stop_dragging()
+
+func is_point_inside_card(point: Vector2) -> bool:
+	# ✅ التحقق إذا كانت النقطة داخل حدود الكارت
+	var card_rect = Rect2(
+		global_position - card_size / 2,
+		card_size
+	)
+	return card_rect.has_point(point)
+
+func check_mouse_hover():
+	# ✅ التحقق يدوياً إذا كانت الفأرة فوق الكارت
+	var mouse_pos = get_global_mouse_position()
+	var was_hovering = is_mouse_hovering
+	is_mouse_hovering = is_point_inside_card(mouse_pos) and not is_dragging
+	
+	# ✅ تشغيل التأثيرات عند التمرير
+	if is_mouse_hovering and not was_hovering:
+		_on_mouse_entered()
+	elif was_hovering and not is_mouse_hovering:
+		_on_mouse_exited()
+
+func start_dragging():
+	# ✅ بدء عملية السحب
+	is_dragging = true
+	drag_offset = global_position - get_global_mouse_position()
+	z_index = 1000  # رفع الكارت فوق كل شيء
+	
+	# 🔊 تأثير عند البدء
+	var tween = create_tween()
+	tween.tween_property(self, "scale", Vector2(1.05, 1.05), 0.1)
+	modulate = Color(1.2, 1.2, 1.2, 1.0)
+	
+	print("📥 Started dragging: ", card_name)
+
+func stop_dragging():
+	# ✅ إنهاء عملية السحب
+	is_dragging = false
+	
+	# ✅ التثبيت على الشبكة إذا كان مفعلاً
+	if snap_to_grid:
+		snap_to_grid_position()
+	
+	# ✅ إرجاع الكارت لمكانه الأصلي إذا كان مفعلاً
+	elif return_to_original:
+		return_to_original_position()
+	
+	# ✅ إرجاع الخصائص الأصلية
+	z_index = original_z_index
+	
+	# 🔊 تأثيرات الإفلات
+	var tween = create_tween()
+	tween.tween_property(self, "scale", Vector2.ONE, 0.15)
+	tween.parallel().tween_property(self, "modulate", Color.WHITE, 0.15)
+	
+	print("📤 Stopped dragging: ", card_name)
+
+func snap_to_grid_position():
+	# ✅ تثبيت الكارت على أقرب نقطة في الشبكة
+	var mouse_pos = get_global_mouse_position()
+	
+	var grid_x = round(mouse_pos.x / grid_size) * grid_size
+	var grid_y = round(mouse_pos.y / grid_size) * grid_size
+	
+	var target_position = Vector2(grid_x, grid_y)
+	
+	# ✅ حركة ناعمة للتثبيت
+	var tween = create_tween()
+	tween.tween_property(self, "global_position", target_position, 0.2)
+	
+	print("🎯 Snapped to grid at: ", target_position)
+
+func return_to_original_position():
+	# ✅ إرجاع الكارت لمكانه الأصلي
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "global_position", original_position, 0.3)
+	
+	print("↩️ Returned to original position")
+
+func _on_mouse_entered():
+	# ✅ تأثير عند دخول الفأرة
+	if not is_dragging:
+		var tween = create_tween()
+		tween.tween_property(self, "scale", Vector2(1.03, 1.03), 0.1)
+
+func _on_mouse_exited():
+	# ✅ إرجاع التأثير عند خروج الفأرة
+	if not is_dragging:
+		var tween = create_tween()
+		tween.tween_property(self, "scale", Vector2.ONE, 0.1)
+
+# 🎮 وظائف للتحكم من الأكواد الأخرى
+func pick_up():
+	start_dragging()
+
+func drop():
+	stop_dragging()
+
+func set_card_data(name: String, size: Vector2 = Vector2(80, 100)):
+	card_name = name
+	card_size = size
+# في سكريبت اللاعب
+
+uid://bpghw61jhf7go
+
+extends Node2D
+
+var parent_card: BaseCard
+var progress_bar: ColorRect
+var background: ColorRect
+
+func _ready():
+	parent_card = get_parent()
+	
+	# إنشاء خلفية الشريط
+	background = ColorRect.new()
+	background.size = Vector2(60, 10)
+	background.position = Vector2(-30, -60) # فوق البطاقة
+	background.color = Color(0, 0, 0, 0.5)
+	add_child(background)
+	
+	# إنشاء شريط التقدم
+	progress_bar = ColorRect.new()
+	progress_bar.size = Vector2(0, 10)
+	progress_bar.position = Vector2(-30, -60)
+	progress_bar.color = Color(0.2, 0.8, 0.2, 1.0)
+	add_child(progress_bar)
+	
+	# إخفاء الشريط في البداية
+	visible = false
+
+func _process(_delta):
+	if parent_card.is_working:
+		visible = true
+		var ratio = parent_card.progress / parent_card.work_duration
+		progress_bar.size.x = 60 * ratio
+	else:
+		visible = false
+
+uid://cadhxapl7m2du
+
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="mitcard"
+run/main_scene="res://world.tscn"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameState="*res://game_state.gd"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+
+[gd_scene load_steps=5 format=3 uid="uid://bfow47o8cdc3m"]
+
+[ext_resource type="Texture2D" uid="uid://c2lpihtln132d" path="res://grass.png" id="1_fj7yv"]
+[ext_resource type="PackedScene" uid="uid://cw25yg64evgn6" path="res://man.tscn" id="2_tlwt5"]
+[ext_resource type="PackedScene" uid="uid://wjwd28ydrrv4" path="res://bush.tscn" id="3_tlwt5"]
+[ext_resource type="Script" path="res://day_ui.gd" id="4_script"]
+
+[node name="World" type="Node2D"]
+
+[node name="Grass" type="Sprite2D" parent="."]
+position = Vector2(269, 12.500034)
+scale = Vector2(57.6875, 51.468754)
+texture = ExtResource("1_fj7yv")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(246, -295)
+zoom = Vector2(0.65, 0.65)
+
+[node name="Bush" parent="." instance=ExtResource("3_tlwt5")]
+position = Vector2(-99, -363)
+
+[node name="Man" parent="." instance=ExtResource("2_tlwt5")]
+position = Vector2(-256, -405)
+
+[node name="UI" type="CanvasLayer" parent="."]
+script = ExtResource("4_script")
+
+root = true
+
+[*]
+charset = utf-8
+
+# Normalize EOL for all files that Git considers text files.
+* text=auto eol=lf
+
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+extends Area2D
+class_name BaseCard
+
+# ⚙️ الإعدادات الأساسية
+@export var card_id: String = "card"
+@export var card_type: String = "resource" # resource, villager, food, building
+@export var work_duration: float = 5.0 # الوقت اللازم لإنهاء العمل على هذه البطاقة
+
+# 🔗 متغيرات التكديس
+var child_card: BaseCard = null
+var parent_card: BaseCard = null
+var is_dragging: bool = false
+var drag_offset: Vector2 = Vector2.ZERO
+
+# ⏳ متغيرات العمل
+var progress: float = 0.0
+var is_working: bool = false
+
+func _ready():
+	add_to_group("cards")
+	# التأكد من وجود Z-Index مناسب
+	z_index = 1
+	
+	# إضافة شريط التقدم تلقائياً
+	var progress_script = load("res://progress_display.gd")
+	if progress_script:
+		var display = Node2D.new()
+		display.set_script(progress_script)
+		add_child(display)
+
+func _process(delta):
+	if is_dragging:
+		global_position = get_global_mouse_position() + drag_offset
+		if child_card:
+			child_card.update_position_from_parent()
+	
+	if is_working and child_card and child_card.card_type == "villager":
+		update_work_progress(delta)
+
+func _input_event(_viewport, event, _shape_idx):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			start_drag()
+			get_viewport().set_input_as_handled()
+		else:
+			stop_drag()
+
+func start_drag():
+	is_dragging = true
+	drag_offset = global_position - get_global_mouse_position()
+	z_index = 100
+	
+	# فك الارتباط من البطاقة التي كانت تحتي
+	if parent_card:
+		parent_card.child_card = null
+		parent_card = null
+	
+	# رفع البطاقات التي فوقي أيضاً
+	if child_card:
+		child_card.set_stack_z_index(z_index + 1)
+
+func stop_drag():
+	is_dragging = false
+	z_index = 1
+	if child_card:
+		child_card.reset_stack_z_index(z_index + 1)
+	
+	check_for_stacking()
+
+func update_position_from_parent():
+	if parent_card:
+		global_position = parent_card.global_position + Vector2(0, 35) # إزاحة للأسفل
+		z_index = parent_card.z_index + 1
+		if child_card:
+			child_card.update_position_from_parent()
+
+func set_stack_z_index(new_z):
+	z_index = new_z
+	if child_card:
+		child_card.set_stack_z_index(new_z + 1)
+
+func reset_stack_z_index(start_z):
+	z_index = start_z
+	if child_card:
+		child_card.reset_stack_z_index(start_z + 1)
+
+func check_for_stacking():
+	var areas = get_overlapping_areas()
+	var closest_card = null
+	var min_dist = 50.0 # مسافة الالتصاق
+	
+	for area in areas:
+		if area is BaseCard and area != self:
+			var dist = global_position.distance_to(area.global_position)
+			if dist < min_dist:
+				# نلتصق فقط إذا كانت البطاقة الأخرى ليس فوقها شيء
+				if area.child_card == null:
+					closest_card = area
+					break
+	
+	if closest_card:
+		parent_card = closest_card
+		closest_card.child_card = self
+		update_position_from_parent()
+		# إذا كان قروياً سقط على مورد، نبدأ العمل
+		if card_type == "villager" and parent_card.card_type == "resource":
+			parent_card.start_work()
+
+func start_work():
+	if not is_working:
+		is_working = true
+		progress = 0.0
+		print("Started working on: ", card_id)
+
+func update_work_progress(delta):
+	progress += delta
+	if progress >= work_duration:
+		complete_work()
+
+func complete_work():
+	is_working = false
+	progress = 0.0
+	print("Finished working on: ", card_id)
+	spawn_result()
+
+func spawn_result():
+	# هذا الجزء سيتم تخصيصه في السكريبتات الفرعية (مثل الشجيرة)
+	pass
